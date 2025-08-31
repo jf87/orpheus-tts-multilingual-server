@@ -1,0 +1,23 @@
+# PyTorch - Deep learning framework
+torch
+torchvision
+torchaudio
+
+# Hugging Face ecosystem
+transformers
+huggingface_hub
+
+# SNAC audio codec
+snac
+
+# Audio processing
+soundfile
+numpy
+
+# API server
+fastapi
+uvicorn
+pydantic
+
+
+dotenv
