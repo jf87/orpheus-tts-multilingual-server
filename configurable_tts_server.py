@@ -37,6 +37,7 @@ import uvicorn
 
 from models_config import MODEL_CONFIGS, SHARED_CONFIG, get_model_config, get_audio_effects_config, get_word_replacements
 from audio_postprocessor import TTSAudioPostProcessor
+from chunking import split_text_into_chunks_chars
 
 # === LOGGING SETUP ===
 def setup_logging():
@@ -921,9 +922,18 @@ def create_app(language: str):
                 logger.info(f"   PROCESSED: {processed_text}")
             
             # Split text into chunks for processing
-            text_chunks = split_text_into_chunks(
+            #text_chunks = split_text_into_chunks(
+            #    processed_text, 
+            #    max_chunk_length=SHARED_CONFIG["max_chunk_length"]
+            #)
+            text_chunks = split_text_into_chunks_chars(
                 processed_text, 
-                max_chunk_length=SHARED_CONFIG["max_chunk_length"]
+                max_chars=200,
+                prefer_end_punct=True,
+                soft_max_ratio=0.85,      # start *preferring* to stop around ~170 chars
+                max_sentences_per_chunk=2,
+                soft_allowance=40,        # allow up to ~240 chars to finish a sentence
+                soft_allow_ratio=0.2      # and cap overshoot to at most +20%
             )
             logger.info(f"📝 [{language.upper()}] Text split into {len(text_chunks)} chunks")
             for i, chunk in enumerate(text_chunks):

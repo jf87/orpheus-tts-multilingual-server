@@ -1,0 +1,22 @@
+{
+  "german": {
+		"SEQUEL": "Siekwel",
+		"AHV": "A H V",
+		"EAN": "E A N",
+		"SQLite": "SQL Lite",
+		"SELECT-Klausel": "Select Klausel",
+		"FROM-Klausel": "From Klausel",
+		"WHERE-Klausel": "Where Klausel",
+		"WHERE-Bedingung" : "Where Bedingung",
+		"ON-Klausel": "on Klausel",
+		"DISTINCT" : "distinct",
+		"BETWEEN" : "between",
+		"WHERE" : "Where",
+		"ILIKE" : "i-Like",
+		"LIKE": "Like"
+  },
+  "english": {
+  },
+  "spanish": {
+  }
+}
