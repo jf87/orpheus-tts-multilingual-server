@@ -1,6 +1,15 @@
+#!/usr/bin/env python3
+"""
+Advanced text chunking module with German-specific abbreviation handling.
+
+This module provides intelligent text chunking for TTS systems, with support
+for soft length limits to preserve natural sentence boundaries.
+"""
+
 import re
 from typing import List, Optional
 
+# German abbreviations that should not trigger sentence breaks
 GER_ABBREVIATIONS = {
     "z. b.", "z.b.", "u. a.", "u.a.", "u. ä.", "u.ä.", "bzw.", "usw.", "etc.",
     "ca.", "vgl.", "s.", "sog.", "bzgl.", "inkl.", "exkl.", "ggf.", "bspw.",
@@ -96,29 +105,47 @@ _ENDS_WITH_PUNCT = re.compile(r'[\.!?…]["»«„“”‚‘’\)\]]*\s*$')
 
 def split_text_into_chunks_chars(
     text: str,
-    max_chars: int = 200,                 # nominal hard cap
+    max_chars: int = 200,
     prefer_end_punct: bool = True,
-    soft_max_ratio: float = 0.85,         # start *preferring* to end around this
+    soft_max_ratio: float = 0.85,
     max_sentences_per_chunk: Optional[int] = 2,
-    soft_allowance: int = 40,             # NEW: allow up to +40 chars to finish sentence
-    soft_allow_ratio: float = 0.2,        # NEW: or up to +20% of max_chars
+    soft_allowance: int = 40,
+    soft_allow_ratio: float = 0.2,
 ) -> List[str]:
     """
-    German-aware, character-only chunking with soft overshoot.
+    German-aware text chunking with soft length limits.
 
-    - Hard cap is `max_chars`, but if adding ONE whole sentence would exceed it
-      and the total <= soft_max, we allow it to end cleanly at punctuation.
-    - soft_max = max_chars + min(soft_allowance, int(max_chars * soft_allow_ratio))
-    - Paragraphs are hard boundaries.
+    This algorithm balances two competing goals:
+    1. Keep chunks under max_chars for model efficiency
+    2. Preserve natural sentence boundaries for better TTS output
+
+    Soft overshoot strategy:
+    - Start preferring to end chunks at soft_max_ratio * max_chars (e.g., 170 of 200)
+    - Allow up to max_chars + min(soft_allowance, max_chars * soft_allow_ratio)
+      to finish a complete sentence cleanly
+    - Example: max_chars=200 → can extend to ~240 chars to avoid mid-sentence cuts
+
+    Args:
+        text: Input text to chunk
+        max_chars: Target maximum characters per chunk
+        prefer_end_punct: Prefer ending chunks at sentence boundaries
+        soft_max_ratio: Start preferring to end around this fraction of max_chars
+        max_sentences_per_chunk: Max sentences per chunk (None = unlimited)
+        soft_allowance: Absolute max chars allowed beyond max_chars
+        soft_allow_ratio: Percentage-based max chars allowed beyond max_chars
+
+    Returns:
+        List of text chunks
     """
     assert max_chars > 20, "max_chars too small"
     text = _norm(text)
     if not text:
         return []
 
-    soft_cap_pref = int(max_chars * soft_max_ratio)
-    soft_overshoot = min(soft_allowance, int(max_chars * soft_allow_ratio))
-    soft_max = max_chars + max(0, soft_overshoot)
+    # Calculate soft and hard limits
+    soft_cap_pref = int(max_chars * soft_max_ratio)  # Start preferring to end here
+    soft_overshoot = min(soft_allowance, int(max_chars * soft_allow_ratio))  # Max overshoot allowed
+    soft_max = max_chars + max(0, soft_overshoot)  # Absolute maximum with overshoot
 
     chunks, cur, sent_in_cur = [], "", 0
 

@@ -13,7 +13,13 @@
 		"BETWEEN" : "between",
 		"WHERE" : "Where",
 		"ILIKE" : "i-Like",
-		"LIKE": "Like"
+		"LIKE": "Like",
+		"UNIQUE-Constraint" : "unique Constraint",
+		"UNIQUE-Constraints" : "unique Constraints",
+		"1-zu-M" : "Eins-zu-M",
+		"M-zu-1" : "M-zu-Eins",
+		"1-zu-1" : "Eins-zu-Eins",
+		"bzw." : "beziehungsweise"
   },
   "english": {
   },

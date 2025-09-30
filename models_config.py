@@ -39,7 +39,7 @@ MODEL_CONFIGS = {
         }
     },
     "english": {
-        "enabled": True,
+        "enabled": False,
         "port": 5005,
         "model_path": "canopylabs/orpheus-3b-0.1-ft",  # Update with actual English model
         "finetuned_model": "path_to_english_orpheus/checkpoint",
@@ -129,21 +129,6 @@ SHARED_CONFIG = {
     # Audio post-processing configuration
     "enable_audio_postprocessing": os.environ.get("ENABLE_AUDIO_POSTPROCESSING", "true").lower() == "true",
     "sox_path": os.environ.get("SOX_PATH", "sox"),  # Path to SoX executable
-    # Global audio effect overrides (optional - overrides language-specific defaults)
-    "global_audio_effects": {
-        # Uncomment to override language-specific settings globally
-        # "pitch_shift": 0.0,
-        # "speed_factor": 1.0,
-        # "gain_db": 0.0,
-        # "normalize_audio": False,
-        # "use_limiter": True,
-        # "add_reverb": False,
-        # "reverb_amount": 50,
-        # "reverb_room_scale": 50,
-        # "add_echo": False,
-        # "echo_delay": 0.5,
-        # "echo_decay": 0.5
-    }
 }
 
 # === HELPER FUNCTIONS ===
@@ -167,21 +152,10 @@ def validate_ports() -> bool:
 
 def get_audio_effects_config(language: str) -> Dict:
     """Get audio effects configuration for a specific language."""
-    # Get language-specific config
     config = get_model_config(language)
     if not config:
         return {}
-    
-    # Start with language-specific defaults
-    audio_effects = config.get("audio_effects", {})
-    
-    # Apply global overrides if they exist and are not empty/commented
-    global_overrides = SHARED_CONFIG.get("global_audio_effects", {})
-    for key, value in global_overrides.items():
-        if value is not None:  # Only override if explicitly set
-            audio_effects[key] = value
-    
-    return audio_effects
+    return config.get("audio_effects", {})
 
 def print_config_summary():
     """Print a summary of the current configuration."""
